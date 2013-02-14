@@ -1,0 +1,6 @@
+suid-script (0.1.0) quantal; urgency=low
+
+  * debian: Initial package files 
+
+ -- Nowcomputing packaging team <packages@nowcomputing.com>  Thu, 14 Feb 2013 10:26:30 +0100
+

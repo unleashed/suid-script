@@ -1,0 +1,16 @@
+Source: suid-script
+Section: misc
+Priority: optional
+Maintainer: Nowcomputing packaging team <packages@nowcomputing.com> 
+Build-Depends: debhelper (>= 8.0.0), autotools-dev
+Standards-Version: 3.9.3
+Homepage: http://www.nowcomputing.com
+
+Package: suid-script
+Architecture: amd64
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Development
+ This package provides tools to impersonate with admin privileges, as a secure
+ wrapper to setuid command.  This allows a set-user-ID (other than root) program
+ to drop all of its user privileges, do some admin-privileged work (or opposite), 
+ and then reengage the original effective user ID in a secure manner.
