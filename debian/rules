@@ -15,5 +15,8 @@ export DH_OPTIONS
 %:
 	dh $@  --without python-support,python2 --with autotools-dev
 
+override_dh_fixperms:
+	dh_fixperms --exclude suid-script  
+
 clean:
 	rm -f config.log config.status
