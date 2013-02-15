@@ -10,7 +10,9 @@ Package: suid-script
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: Development
- This package provides tools to impersonate with admin privileges, as a secure
- wrapper to setuid command.  This allows a set-user-ID (other than root) program
- to drop all of its user privileges, do some admin-privileged work (or opposite), 
- and then reengage the original effective user ID in a secure manner.
+ This package provides a tool to allow shell scripts to run honoring setuid modes.
+ This allows a non-privileged user to run those scripts just as she would run any
+ other setuid binary. In order for this to happen securely you have to install the
+ setuid script without world nor group writable permissions and enable the setuid
+ and/or setgid permissions. suid-script will run the shell script using the uid
+ and gid of the user owner and group owner if their respective bits are enabled.
