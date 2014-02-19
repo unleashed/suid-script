@@ -1,10 +1,10 @@
 Source: suid-script
 Section: misc
 Priority: optional
-Maintainer: Nowcomputing packaging team <packages@nowcomputing.com> 
+Maintainer: Alejandro Martinez Ruiz <alex@flawedcode.org> 
 Build-Depends: debhelper (>= 8.0.0), autotools-dev
 Standards-Version: 3.9.3
-Homepage: http://www.nowcomputing.com
+Homepage: http://github.com/unleashed/suid-script
 
 Package: suid-script
 Architecture: any
