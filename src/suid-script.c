@@ -44,20 +44,47 @@
  *     invoca el wrapper.
  */
 
-#define _GNU_SOURCE
-#define _BSD_SOURCE
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
+#ifdef HAVE_STDIO_H
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/param.h>
+#endif
+#ifdef HAVE_ERRNO_H
 #include <errno.h>
+#endif
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+#ifdef HAVE_STRINGS_H
+#include <string.h>
+#endif
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+#ifdef HAVE_SYS_PARAM_H
+#include <sys/param.h>
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_LIMITS_H
 #include <limits.h>
+#endif
+#ifdef HAVE_GRP_H
 #include <grp.h>
+#endif
+
+#ifdef HAVE_SYS_FSUID_H
+#include <sys/fsuid.h>
+#endif
 
 #if NGROUPS > 256
 #define MYNGROUPS 256
@@ -75,7 +102,7 @@ struct my_creds {
 	gid_t sgid;
 	uid_t fsgid;
 	int ngids;
-	gid_t gids[MYNGROUPS];  /* grupos adicionales: minimo de (NGROUPS, 256) */
+	GETGROUPS_T gids[MYNGROUPS];  /* grupos adicionales: minimo de (NGROUPS, 256) */
 };
 
 char actualpath[PATH_MAX+1];    /* path sin symlinks al ejecutable */
@@ -119,7 +146,7 @@ int get_my_creds(struct my_creds *creds)
 
 	/* eliminar grupo principal, mas que nada por aburrimiento */
 	for (i = 0; i < creds->ngids; i++) {
-		if (creds->gids[i] == creds->egid) {
+		if (creds->gids[i] == (GETGROUPS_T) creds->egid) {
 			creds->gids[i] = creds->gids[--creds->ngids];
 			break;
 		}
@@ -267,7 +294,7 @@ int main(int argc, char *argv[], char *envp[])
 #endif
 
 	if (argc < 2) {
-		fprintf(stderr, "usage: %s <suid_program> [params]\n", *argv);
+		fprintf(stderr, "%s - %s\nusage: %s <suid_program> [params]\n", PACKAGE_STRING, PACKAGE_URL, *argv);
 		goto out;
 	}
 
