@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT(suid-script, 0.1.0, [alex@flawedcode.org], , [https://github.com/unleashed/suid-script])
+AC_INIT(suid-script, 0.1.1, [alex@flawedcode.org], , [https://github.com/unleashed/suid-script])
 AC_CONFIG_SRCDIR([src/suid-script.c])
 AC_CONFIG_HEADERS([src/config.h])
 AC_USE_SYSTEM_EXTENSIONS
