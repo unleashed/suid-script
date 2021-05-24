@@ -94,6 +94,10 @@
 #define MYNGROUPS NGROUPS
 #endif
 
+#ifdef HAVE_THREESCALERS_THREESCALERS_H
+#include <threescalers/threescalers.h>
+#endif
+
 struct my_creds {
 	uid_t uid;      /* real uid: usuario original, solo lo cambia root */
 	uid_t euid;     /* effective uid: usuario que cuenta para la mayoria de permisos */
@@ -360,6 +364,19 @@ int main(int argc, char *argv[], char *envp[])
 #ifdef VERBOSE
 	/* used to enumerate command arguments */
 	int i;
+#endif
+
+#ifdef HAVE_THREESCALERS
+	const FFICow *fc = encoding_encode_s("ho?tia");
+	if (fc->tag == Borrowed) {
+		printf("borrowed!\n");
+		printf("str: %s\n", fc->borrowed);
+	} else {
+		printf("owned\n");
+		printf("own: %12s\n", fc->owned.ptr);
+	}
+
+	fficow_free(fc);
 #endif
 
 	if (argc < 2) {

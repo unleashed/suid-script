@@ -6,12 +6,14 @@ AC_INIT(suid-script, 0.1.1, [alex@flawedcode.org], , [https://github.com/unleash
 AC_CONFIG_SRCDIR([src/suid-script.c])
 AC_CONFIG_HEADERS([src/config.h])
 AM_INIT_AUTOMAKE([foreign subdir-objects dist-xz])
+AM_SILENT_RULES([yes])
 AM_MAINTAINER_MODE([enable])
 
 AC_USE_SYSTEM_EXTENSIONS
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
+AC_PROG_MKDIR_P
 AC_PROG_MAKE_SET
 
 # Checks for libraries.
@@ -36,11 +38,25 @@ AC_ARG_WITH([3scale], AS_HELP_STRING([--with-3scale], [Build with 3scalers suppo
 
 AS_IF([test "x$with_3scale" != "xno"], [
    PKG_PROG_PKG_CONFIG([0.24])
-   PKG_CHECK_MODULES([THREESCALERS], [threescalers],
-		     AC_DEFINE([HAVE_THREESCALERS], [1], [Define if you have the threescalers library])
-		     AC_CHECK_HEADERS([threescalers/threescalers.h])
-		     AC_CHECK_FUNCS([encoding_encode_s])
-	     )
+   AC_SUBST(THREESCALERS_LIBS)
+   AC_SUBST(THREESCALERS_CFLAGS)
+   if $PKG_CONFIG --atleast-version=0.7.0 threescalers; then
+	   THREESCALERS_LIBS=`$PKG_CONFIG --libs threescalers`
+	   THREESCALERS_CFLAGS=`$PKG_CONFIG --cflags threescalers`
+	   AC_CHECK_HEADERS([threescalers/threescalers.h])
+	   AC_DEFINE([HAVE_THREESCALERS], [1], [Define if you have the threescalers library])
+   else
+	   if test "x$with_3scale" != "xcheck"; then
+		   AC_MSG_FAILURE([--with-3scale was given, but test for threescalers failed])
+	   fi
+   fi
+   ])
+
+#   PKG_CHECK_MODULES([THREESCALERS], [threescalers],
+#		     AC_DEFINE([HAVE_THREESCALERS], [1], [Define if you have the threescalers library])
+#		     AC_CHECK_HEADERS([threescalers/threescalers.h])
+#		     AC_CHECK_FUNCS([encoding_encode_s])
+#	     )
 #	AC_CHECK_LIB([threescalers], [encoding_encode_s], [
 #		      AC_SUBST([THREESCALERS], ["-lthreescalers"])
 #		      AC_DEFINE([HAVE_THREESCALERS], [1], [Define if you have threescalers])
