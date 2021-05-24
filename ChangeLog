@@ -1,0 +1,28 @@
+* Changes from v0.1.0 to v0.1.1:
+
+	Alejandro Martinez Ruiz (17):
+	      debian: fix licensing and copyright info
+	      debian: extend long package description
+	      debian: use quilt format
+	      licensing: add GPLv3+ as the explicit license of the software
+	      debian: changed the maintainer to me
+	      misc: fix warnings in newer toolchains and actually use detected features
+	      suid-script: ifdef-out lack of fsuid support
+	      auto*.sh: use /bin/sh rather than bash
+	      suid-script: fix missing getresuid (ie. NetBSD)
+	      misc: actually include and use version_data.h
+	      suid-script: move to use /bin/sh
+	      scripts: replace /bin/echo with echo as -e works nowadays everywhere
+	      suid-script: move all verbose output to stderr
+	      README.md: minimal description added
+	      debian: update copyright and changelog
+	      suid-script: release 0.1.1
+	      ChangeLog: add entry for 0.1.1
+	
+	Gerard Alquézar (1):
+	      debian: fix suid bit on suid-script
+	
+	Juan A. Moya (2):
+	      debpackage: Initial debian files to build package
+	      debpackage: Reverting arch to any, as there is no restriction to set
+	

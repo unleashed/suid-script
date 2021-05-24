@@ -44,20 +44,49 @@
  *     invoca el wrapper.
  */
 
-#define _GNU_SOURCE
-#define _BSD_SOURCE
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
+#include "version_data.h"
+
+#ifdef HAVE_STDIO_H
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/param.h>
+#endif
+#ifdef HAVE_ERRNO_H
 #include <errno.h>
+#endif
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+#ifdef HAVE_STRINGS_H
+#include <string.h>
+#endif
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+#ifdef HAVE_SYS_PARAM_H
+#include <sys/param.h>
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_LIMITS_H
 #include <limits.h>
+#endif
+#ifdef HAVE_GRP_H
 #include <grp.h>
+#endif
+
+#ifdef HAVE_SYS_FSUID_H
+#include <sys/fsuid.h>
+#endif
 
 #if NGROUPS > 256
 #define MYNGROUPS 256
@@ -69,13 +98,17 @@ struct my_creds {
 	uid_t uid;      /* real uid: usuario original, solo lo cambia root */
 	uid_t euid;     /* effective uid: usuario que cuenta para la mayoria de permisos */
 	uid_t suid;     /* saved uid: usuario salvado anterior, permite recuperarlo como effective */
+#ifdef HAVE_SETFSUID
 	uid_t fsuid;    /* filesystem uid: usuario para chequeos de fs, generalmente euid, solo lo cambia root */
+#endif
 	gid_t gid;      /* ditto para grupos */
 	gid_t egid;
 	gid_t sgid;
+#ifdef HAVE_SETFSUID
 	uid_t fsgid;
+#endif
 	int ngids;
-	gid_t gids[MYNGROUPS];  /* grupos adicionales: minimo de (NGROUPS, 256) */
+	GETGROUPS_T gids[MYNGROUPS];  /* grupos adicionales: minimo de (NGROUPS, 256) */
 };
 
 char actualpath[PATH_MAX+1];    /* path sin symlinks al ejecutable */
@@ -84,9 +117,50 @@ int get_my_creds(struct my_creds *creds)
 {
 	int ret = -1;
 
-	if (getresuid(&creds->uid, &creds->euid, &creds->suid) < 0 ||
-	    getresgid(&creds->gid, &creds->egid, &creds->sgid) < 0)
-	goto out;
+#ifdef HAVE_GETRESUID
+	if (getresuid(&creds->uid, &creds->euid, &creds->suid) < 0)
+	       goto out;
+#else
+	{
+	uid_t uid;
+
+	uid = getuid();
+	if (uid < 0) {
+		goto out;
+	}
+	creds->uid = uid;
+
+	uid = geteuid();
+	if (uid < 0) {
+		goto out;
+	}
+	creds->euid = uid;
+	// cannot access saved-user-id in these cases
+	creds->suid = -1;
+	}
+#endif
+#ifdef HAVE_GETRESGID
+	if (getresgid(&creds->gid, &creds->egid, &creds->sgid) < 0)
+		goto out;
+#else
+	{
+	gid_t gid;
+
+	gid = getgid();
+	if (gid < 0) {
+		goto out;
+	}
+	creds->gid = gid;
+
+	gid = getegid();
+	if (gid < 0) {
+		goto out;
+	}
+	creds->egid = gid;
+	// cannot access saved-user-id in these cases
+	creds->sgid = -1;
+	}
+#endif
 
 	/*
 	 * La forma de conseguir las fsuids es seteandolas
@@ -104,11 +178,16 @@ int get_my_creds(struct my_creds *creds)
 	 *     sigue siempre va a funcionar (porque no puede haber en fsuid otra cosa que uno de esos 3 valores
 	 *     para quien no sea root).
 	 */
+#ifdef HAVE_SETFSUID
 	creds->fsuid = setfsuid(creds->euid);
-	creds->fsgid = setfsgid(creds->egid);
-	/* las restauramos */
+	/* la restauramos */
 	setfsuid(creds->fsuid);
+#endif
+#ifdef HAVE_SETFSGID
+	creds->fsgid = setfsgid(creds->egid);
+	/* la restauramos */
 	setfsgid(creds->fsgid);
+#endif
 
 	ret = getgroups(MYNGROUPS, creds->gids);
 	creds->ngids = ret;
@@ -119,7 +198,7 @@ int get_my_creds(struct my_creds *creds)
 
 	/* eliminar grupo principal, mas que nada por aburrimiento */
 	for (i = 0; i < creds->ngids; i++) {
-		if (creds->gids[i] == creds->egid) {
+		if (creds->gids[i] == (GETGROUPS_T) creds->egid) {
 			creds->gids[i] = creds->gids[--creds->ngids];
 			break;
 		}
@@ -135,10 +214,23 @@ void print_my_creds(const struct my_creds *creds)
 {
 	unsigned int i;
 
-	fprintf(stderr, "uid = %d\t- euid = %d\t- suid = %d\t- fsuid = %d\n"
-		"gid = %d\t- egid = %d\t- sgid = %d\t- fsgid = %d\n"
-		"ngids = %d\ngids =", creds->uid, creds->euid, creds->suid, creds->fsuid,
-		creds->gid, creds->egid, creds->sgid, creds->fsgid, creds->ngids);
+	fprintf(stderr, "uid = %d\t- euid = %d\t- suid = %d\t- "
+#ifdef HAVE_SETFSUID
+			"fsuid = %d\n"
+#endif
+		"gid = %d\t- egid = %d\t- sgid = %d\t- "
+#ifdef HAVE_SETFSUID
+		"fsgid = %d\n"
+#endif
+		"ngids = %d\ngids =", creds->uid, creds->euid, creds->suid,
+#ifdef HAVE_SETFSUID
+		creds->fsuid,
+#endif
+		creds->gid, creds->egid, creds->sgid,
+#ifdef HAVE_SETFSUID
+		creds->fsgid,
+#endif
+		creds->ngids);
 	for (i = 0; i < creds->ngids; i++)
 		fprintf(stderr, " %d", creds->gids[i]);
 
@@ -150,7 +242,7 @@ int change_to_ug(const uid_t uid, const gid_t gid)
 	int ret;
 
 #ifdef VERBOSE
-	printf("getting uid=%d gid=%d\n", uid, gid);
+	fprintf(stderr, "getting uid=%d gid=%d\n", uid, gid);
 #endif
 
 	/* we must set first the gid, as changing uid first would mean setgid could fail on us */
@@ -211,7 +303,7 @@ int do_stat(const char *path, struct stat *sb)
 	if (realpath(path, actualpath) == NULL)
 		return -1;
 #ifdef VERBOSE
-	printf("realpath: %s\n", actualpath);
+	fprintf(stderr, "realpath: %s\n", actualpath);
 #endif
 	return stat(actualpath, sb);
 }
@@ -254,22 +346,38 @@ out:
 	return 0;
 }
 
+void print_creds()
+{
+	struct my_creds creds;
+
+	get_my_creds(&creds);
+	print_my_creds(&creds);
+}
+
 int main(int argc, char *argv[], char *envp[])
 {
 	char **args;
 #ifdef VERBOSE
-	struct my_creds creds;
+	/* used to enumerate command arguments */
 	int i;
-
-	printf("INITIAL:\n");
-	get_my_creds(&creds);
-	print_my_creds(&creds);
 #endif
 
 	if (argc < 2) {
-		fprintf(stderr, "usage: %s <suid_program> [params]\n", *argv);
+		fprintf(stderr, "%s %s (%s)\n%s\n\nusage: %s <suid_program> [params]\n\n"
+				"Please ensure <suid_program> is a non-world, non-group writable setuid script.\n",
+				PACKAGE_NAME, VERSION_STRING, BUILD_DATE, PACKAGE_URL, *argv);
+#ifdef VERBOSE
+		fprintf(stderr, "\nLaunch creds:\n");
+		print_creds();
+#endif
+
 		goto out;
 	}
+
+#ifdef VERBOSE
+	fprintf(stderr, "Launch creds:\n");
+	print_creds();
+#endif
 
 	if (itchy_bitchy_scratchy_perm_witch(argv[1]) < 0) {
 		perror("perms");
@@ -277,9 +385,8 @@ int main(int argc, char *argv[], char *envp[])
 	}
 
 #ifdef VERBOSE
-	printf("FINAL:\n");
-	get_my_creds(&creds);
-	print_my_creds(&creds);
+	fprintf(stderr, "Script creds:\n");
+	print_creds();
 #endif
 
 	args = (char **) malloc(sizeof(char **) * (argc + 2));	/* we need space for a terminating NULL parameter */
@@ -288,7 +395,7 @@ int main(int argc, char *argv[], char *envp[])
 		goto out;
 	}
 
-	args[0] = "/bin/bash";
+	args[0] = "/bin/sh";
 	args[1] = "-";	/* disallow further options to sh (this is to allow you to name your script something like "-i" securely) */
 	args[2] = actualpath;
 	if (argc > 2)
@@ -296,10 +403,10 @@ int main(int argc, char *argv[], char *envp[])
 	args[argc+1] = NULL;
 
 #ifdef VERBOSE
-	printf("COMMAND:");
+	fprintf(stderr, "COMMAND:");
 	for (i = 0; i < argc+1; i++)
-		printf(" %s", args[i]);
-	printf("\n");
+		fprintf(stderr, " %s", args[i]);
+	fprintf(stderr, "\n");
 #endif
 	execve(args[0], &args[0], envp);
 	perror("execve");

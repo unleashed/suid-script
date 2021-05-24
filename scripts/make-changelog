@@ -23,10 +23,10 @@ CURRENT_VER=$(git describe ${HEAD})
 echo Generating changelog from ${LAST_VER} to ${CURRENT_VER} ...
 CHANGELOG="$(dirname $0)/../ChangeLog"
 CHANGELOGTMP="${CHANGELOG}.tmp"
-/bin/echo -e "* Changes from ${LAST_VER} to ${CURRENT_VER}:\n" > ${CHANGELOGTMP}
+echo -e "* Changes from ${LAST_VER} to ${CURRENT_VER}:\n" > ${CHANGELOGTMP}
 git shortlog --no-merges ${LAST_VER}..${CURRENT_VER} | sed -e 's/^\(.*\)$/\t\1/g' >> ${CHANGELOGTMP}
 test -f ${CHANGELOG} && {
-	/bin/echo -n -e "\n" >> ${CHANGELOGTMP}
+	echo -n -e "\n" >> ${CHANGELOGTMP}
 	cat ${CHANGELOG} >> ${CHANGELOGTMP}
 }
 mv -f ${CHANGELOGTMP} ${CHANGELOG}
