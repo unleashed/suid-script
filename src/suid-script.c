@@ -382,7 +382,7 @@ int main(int argc, char *argv[], char *envp[])
 		goto out;
 	}
 
-	args[0] = "/bin/bash";
+	args[0] = "/bin/sh";
 	args[1] = "-";	/* disallow further options to sh (this is to allow you to name your script something like "-i" securely) */
 	args[2] = actualpath;
 	if (argc > 2)
