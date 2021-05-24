@@ -66,36 +66,36 @@ case ${PREVIEWTYPE} in
 esac
 test "x${PREVIEWLEVEL}" = "x" && PREVIEWLEVEL=0
 
-/bin/echo -e "/* NO EDITAR, autogenerado por make-version */\n#ifndef __VERSION_DATA_H__\n#define __VERSION_DATA_H__\n\n#define VERSION_STRING \"$SOFTVERSION\"\n#define BUILD_DATE \"`date +%Y%m%d`\"\n#define BUILT_BY \"`whoami`@`hostname -f`\"\n#define VERSION_COMMIT \"$COMMIT\"" > ${VERSION_DATA}
+echo -e "/* NO EDITAR, autogenerado por make-version */\n#ifndef __VERSION_DATA_H__\n#define __VERSION_DATA_H__\n\n#define VERSION_STRING \"$SOFTVERSION\"\n#define BUILD_DATE \"`date +%Y%m%d`\"\n#define BUILT_BY \"`whoami`@`hostname -f`\"\n#define VERSION_COMMIT \"$COMMIT\"" > ${VERSION_DATA}
 test -n "${CODENAME}" && {
 	echo Codename: ${CODENAME}
-	/bin/echo -e "#define VERSION_CODENAME \"${CODENAME}\"" >> ${VERSION_DATA}
+	echo -e "#define VERSION_CODENAME \"${CODENAME}\"" >> ${VERSION_DATA}
 }
 
 echo Major: ${MAJOR}
-/bin/echo -e "#define VERSION_MAJOR ${MAJOR}" >> ${VERSION_DATA}
+echo -e "#define VERSION_MAJOR ${MAJOR}" >> ${VERSION_DATA}
 
 echo Minor: ${MINOR}
-/bin/echo -e "#define VERSION_MINOR ${MINOR}" >> ${VERSION_DATA}
+echo -e "#define VERSION_MINOR ${MINOR}" >> ${VERSION_DATA}
 
 echo Micro: ${MICRO}
-/bin/echo -e "#define VERSION_MICRO ${MICRO}" >> ${VERSION_DATA}
+echo -e "#define VERSION_MICRO ${MICRO}" >> ${VERSION_DATA}
 
 echo Patchlevel: ${PATCHLEVEL}
-/bin/echo -e "#define VERSION_PATCHLEVEL ${PATCHLEVEL}" >> ${VERSION_DATA}
+echo -e "#define VERSION_PATCHLEVEL ${PATCHLEVEL}" >> ${VERSION_DATA}
 
 echo Extra: ${EXTRA}
-/bin/echo -e "#define VERSION_EXTRA \"${EXTRA}\"" >> ${VERSION_DATA}
+echo -e "#define VERSION_EXTRA \"${EXTRA}\"" >> ${VERSION_DATA}
 
 echo Dirty: ${DIRTY}
-/bin/echo -e "#define VERSION_DIRTY ${DIRTY}" >> ${VERSION_DATA}
+echo -e "#define VERSION_DIRTY ${DIRTY}" >> ${VERSION_DATA}
 
 echo Version type: ${PREVIEWTYPE}
-/bin/echo -e "#define VERSION_TYPE ${PREVIEWTYPE}" >> ${VERSION_DATA}
+echo -e "#define VERSION_TYPE ${PREVIEWTYPE}" >> ${VERSION_DATA}
 
 echo Version type level: ${PREVIEWLEVEL}
-/bin/echo -e "#define VERSION_TYPE_LEVEL ${PREVIEWLEVEL}" >> ${VERSION_DATA}
+echo -e "#define VERSION_TYPE_LEVEL ${PREVIEWLEVEL}" >> ${VERSION_DATA}
 
-/bin/echo -e "\n#endif" >> ${VERSION_DATA}
+echo -e "\n#endif" >> ${VERSION_DATA}
 
 exit 0
