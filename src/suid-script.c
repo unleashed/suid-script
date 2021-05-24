@@ -242,7 +242,7 @@ int change_to_ug(const uid_t uid, const gid_t gid)
 	int ret;
 
 #ifdef VERBOSE
-	printf("getting uid=%d gid=%d\n", uid, gid);
+	fprintf(stderr, "getting uid=%d gid=%d\n", uid, gid);
 #endif
 
 	/* we must set first the gid, as changing uid first would mean setgid could fail on us */
@@ -303,7 +303,7 @@ int do_stat(const char *path, struct stat *sb)
 	if (realpath(path, actualpath) == NULL)
 		return -1;
 #ifdef VERBOSE
-	printf("realpath: %s\n", actualpath);
+	fprintf(stderr, "realpath: %s\n", actualpath);
 #endif
 	return stat(actualpath, sb);
 }
@@ -346,24 +346,38 @@ out:
 	return 0;
 }
 
+void print_creds()
+{
+	struct my_creds creds;
+
+	get_my_creds(&creds);
+	print_my_creds(&creds);
+}
+
 int main(int argc, char *argv[], char *envp[])
 {
 	char **args;
 #ifdef VERBOSE
-	struct my_creds creds;
+	/* used to enumerate command arguments */
 	int i;
-
-	printf("INITIAL:\n");
-	get_my_creds(&creds);
-	print_my_creds(&creds);
 #endif
 
 	if (argc < 2) {
 		fprintf(stderr, "%s %s (%s)\n%s\n\nusage: %s <suid_program> [params]\n\n"
 				"Please ensure <suid_program> is a non-world, non-group writable setuid script.\n",
 				PACKAGE_NAME, VERSION_STRING, BUILD_DATE, PACKAGE_URL, *argv);
+#ifdef VERBOSE
+		fprintf(stderr, "\nLaunch creds:\n");
+		print_creds();
+#endif
+
 		goto out;
 	}
+
+#ifdef VERBOSE
+	fprintf(stderr, "Launch creds:\n");
+	print_creds();
+#endif
 
 	if (itchy_bitchy_scratchy_perm_witch(argv[1]) < 0) {
 		perror("perms");
@@ -371,9 +385,8 @@ int main(int argc, char *argv[], char *envp[])
 	}
 
 #ifdef VERBOSE
-	printf("FINAL:\n");
-	get_my_creds(&creds);
-	print_my_creds(&creds);
+	fprintf(stderr, "Script creds:\n");
+	print_creds();
 #endif
 
 	args = (char **) malloc(sizeof(char **) * (argc + 2));	/* we need space for a terminating NULL parameter */
@@ -390,10 +403,10 @@ int main(int argc, char *argv[], char *envp[])
 	args[argc+1] = NULL;
 
 #ifdef VERBOSE
-	printf("COMMAND:");
+	fprintf(stderr, "COMMAND:");
 	for (i = 0; i < argc+1; i++)
-		printf(" %s", args[i]);
-	printf("\n");
+		fprintf(stderr, " %s", args[i]);
+	fprintf(stderr, "\n");
 #endif
 	execve(args[0], &args[0], envp);
 	perror("execve");
