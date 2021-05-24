@@ -1,9 +1,9 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: suid-script
-Source: http://www.flawedcode.org
+Source: https://github.com/unleashed/suid-script
 
 Files: *
-Copyright: 2012 Alejandro Martinez Ruiz <alex@flawedcode.org>
+Copyright: 2008, 2012, 2021 Alejandro Martinez Ruiz <alex@flawedcode.org>
 License: GPL-3+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

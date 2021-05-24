@@ -1,3 +1,9 @@
+suid-script (0.1.1) quantal; urgency=low
+
+  * debian: Update to 0.1.1
+
+ -- Untested <alex@flawedcode.org>  Mon, 24 May 2021 16:40:49 +0200
+
 suid-script (0.1.0) quantal; urgency=low
 
   * debian: Initial package files 
