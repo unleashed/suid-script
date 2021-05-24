@@ -96,11 +96,15 @@ struct my_creds {
 	uid_t uid;      /* real uid: usuario original, solo lo cambia root */
 	uid_t euid;     /* effective uid: usuario que cuenta para la mayoria de permisos */
 	uid_t suid;     /* saved uid: usuario salvado anterior, permite recuperarlo como effective */
+#ifdef HAVE_SETFSUID
 	uid_t fsuid;    /* filesystem uid: usuario para chequeos de fs, generalmente euid, solo lo cambia root */
+#endif
 	gid_t gid;      /* ditto para grupos */
 	gid_t egid;
 	gid_t sgid;
+#ifdef HAVE_SETFSUID
 	uid_t fsgid;
+#endif
 	int ngids;
 	GETGROUPS_T gids[MYNGROUPS];  /* grupos adicionales: minimo de (NGROUPS, 256) */
 };
@@ -131,11 +135,16 @@ int get_my_creds(struct my_creds *creds)
 	 *     sigue siempre va a funcionar (porque no puede haber en fsuid otra cosa que uno de esos 3 valores
 	 *     para quien no sea root).
 	 */
+#ifdef HAVE_SETFSUID
 	creds->fsuid = setfsuid(creds->euid);
-	creds->fsgid = setfsgid(creds->egid);
-	/* las restauramos */
+	/* la restauramos */
 	setfsuid(creds->fsuid);
+#endif
+#ifdef HAVE_SETFSGID
+	creds->fsgid = setfsgid(creds->egid);
+	/* la restauramos */
 	setfsgid(creds->fsgid);
+#endif
 
 	ret = getgroups(MYNGROUPS, creds->gids);
 	creds->ngids = ret;
@@ -162,10 +171,23 @@ void print_my_creds(const struct my_creds *creds)
 {
 	unsigned int i;
 
-	fprintf(stderr, "uid = %d\t- euid = %d\t- suid = %d\t- fsuid = %d\n"
-		"gid = %d\t- egid = %d\t- sgid = %d\t- fsgid = %d\n"
-		"ngids = %d\ngids =", creds->uid, creds->euid, creds->suid, creds->fsuid,
-		creds->gid, creds->egid, creds->sgid, creds->fsgid, creds->ngids);
+	fprintf(stderr, "uid = %d\t- euid = %d\t- suid = %d\t- "
+#ifdef HAVE_SETFSUID
+			"fsuid = %d\n"
+#endif
+		"gid = %d\t- egid = %d\t- sgid = %d\t- "
+#ifdef HAVE_SETFSUID
+		"fsgid = %d\n"
+#endif
+		"ngids = %d\ngids =", creds->uid, creds->euid, creds->suid,
+#ifdef HAVE_SETFSUID
+		creds->fsuid,
+#endif
+		creds->gid, creds->egid, creds->sgid,
+#ifdef HAVE_SETFSUID
+		creds->fsgid,
+#endif
+		creds->ngids);
 	for (i = 0; i < creds->ngids; i++)
 		fprintf(stderr, " %d", creds->gids[i]);
 
