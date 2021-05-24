@@ -25,7 +25,7 @@ AC_TYPE_UID_T
 AC_FUNC_GETGROUPS
 AC_FUNC_MALLOC
 AC_FUNC_STAT
-AC_CHECK_FUNCS([realpath execve getuid setuid setgid setfsuid setfsgid getresuid getresgid])
+AC_CHECK_FUNCS([realpath execve getuid geteuid getgid getegid setuid setgid setfsuid setfsgid getresuid getresgid])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile])

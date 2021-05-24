@@ -115,9 +115,50 @@ int get_my_creds(struct my_creds *creds)
 {
 	int ret = -1;
 
-	if (getresuid(&creds->uid, &creds->euid, &creds->suid) < 0 ||
-	    getresgid(&creds->gid, &creds->egid, &creds->sgid) < 0)
-	goto out;
+#ifdef HAVE_GETRESUID
+	if (getresuid(&creds->uid, &creds->euid, &creds->suid) < 0)
+	       goto out;
+#else
+	{
+	uid_t uid;
+
+	uid = getuid();
+	if (uid < 0) {
+		goto out;
+	}
+	creds->uid = uid;
+
+	uid = geteuid();
+	if (uid < 0) {
+		goto out;
+	}
+	creds->euid = uid;
+	// cannot access saved-user-id in these cases
+	creds->suid = -1;
+	}
+#endif
+#ifdef HAVE_GETRESGID
+	if (getresgid(&creds->gid, &creds->egid, &creds->sgid) < 0)
+		goto out;
+#else
+	{
+	gid_t gid;
+
+	gid = getgid();
+	if (gid < 0) {
+		goto out;
+	}
+	creds->gid = gid;
+
+	gid = getegid();
+	if (gid < 0) {
+		goto out;
+	}
+	creds->egid = gid;
+	// cannot access saved-user-id in these cases
+	creds->sgid = -1;
+	}
+#endif
 
 	/*
 	 * La forma de conseguir las fsuids es seteandolas
