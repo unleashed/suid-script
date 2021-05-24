@@ -48,6 +48,8 @@
 #include "config.h"
 #endif
 
+#include "version_data.h"
+
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
 #endif
@@ -357,7 +359,9 @@ int main(int argc, char *argv[], char *envp[])
 #endif
 
 	if (argc < 2) {
-		fprintf(stderr, "%s - %s\nusage: %s <suid_program> [params]\n", PACKAGE_STRING, PACKAGE_URL, *argv);
+		fprintf(stderr, "%s %s (%s)\n%s\n\nusage: %s <suid_program> [params]\n\n"
+				"Please ensure <suid_program> is a non-world, non-group writable setuid script.\n",
+				PACKAGE_NAME, VERSION_STRING, BUILD_DATE, PACKAGE_URL, *argv);
 		goto out;
 	}
 
