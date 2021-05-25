@@ -5,7 +5,7 @@ AC_PREREQ([2.69])
 AC_INIT(suid-script, 0.1.1, [alex@flawedcode.org], , [https://github.com/unleashed/suid-script])
 AC_CONFIG_SRCDIR([src/suid-script.c])
 AC_CONFIG_HEADERS([src/config.h])
-AM_INIT_AUTOMAKE([foreign subdir-objects dist-xz])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_SILENT_RULES([yes])
 AM_MAINTAINER_MODE([enable])
 
@@ -44,6 +44,7 @@ AS_IF([test "x$with_3scale" != "xno"], [
 	   THREESCALERS_LIBS=`$PKG_CONFIG --libs threescalers`
 	   THREESCALERS_CFLAGS=`$PKG_CONFIG --cflags threescalers`
 	   AC_CHECK_HEADERS([threescalers/threescalers.h])
+	   AC_CHECK_HEADERS([threescalers.h])
 	   AC_DEFINE([HAVE_THREESCALERS], [1], [Define if you have the threescalers library])
    else
 	   if test "x$with_3scale" != "xcheck"; then
