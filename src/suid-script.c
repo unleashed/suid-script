@@ -94,6 +94,9 @@
 #define MYNGROUPS NGROUPS
 #endif
 
+#ifdef HAVE_THREESCALERS_H
+#include <threescalers.h>
+#endif
 #ifdef HAVE_THREESCALERS_THREESCALERS_H
 #include <threescalers/threescalers.h>
 #endif
