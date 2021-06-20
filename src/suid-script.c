@@ -370,6 +370,7 @@ int main(int argc, char *argv[], char *envp[])
 #endif
 
 #ifdef HAVE_THREESCALERS
+	{
 	const FFICow *fc = encoding_encode_s("ho?tia");
 	if (fc->tag == Borrowed) {
 		printf("borrowed!\n");
@@ -380,6 +381,19 @@ int main(int argc, char *argv[], char *envp[])
 	}
 
 	fficow_free(fc);
+	}
+	{
+	const FFICow *fc = encoding_encode_s("hostia");
+	if (fc->tag == Borrowed) {
+		printf("borrowed!\n");
+		printf("str: %s\n", fc->borrowed);
+	} else {
+		printf("owned\n");
+		printf("own: %12s\n", fc->owned.ptr);
+	}
+
+	fficow_free(fc);
+	}
 #endif
 
 	if (argc < 2) {
